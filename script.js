@@ -91,15 +91,40 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* -----------------------------------------------------
-     4) TRACKING SIMPLES DE CLIQUES NO WHATSAPP (console)
-     Facilita plugar Google Analytics / Meta Pixel depois
+     4) RASTREAMENTO DE CONVERSÃO — Google Analytics 4 + Meta Pixel
+     Dispara um evento sempre que o visitante clica em qualquer
+     CTA que leve ao WhatsApp (Hero, Autoridade e botão flutuante).
      ----------------------------------------------------- */
+  const siteConfig = window.SITE_CONFIG || {};
+  const isPlaceholder = (value, placeholder) => !value || value === placeholder;
+
+  const gaReady = !isPlaceholder(siteConfig.GA_MEASUREMENT_ID, 'G-XXXXXXXXXX');
+  const pixelReady = !isPlaceholder(siteConfig.META_PIXEL_ID, '0000000000000000');
+
+  if (!gaReady || !pixelReady) {
+    console.warn(
+      '[Analytics] Configure os IDs reais em window.SITE_CONFIG (no <head> do index.html) ' +
+      'para ativar o Google Analytics 4 e/ou o Meta Pixel.'
+    );
+  }
+
   document.querySelectorAll('a[href*="wa.me"]').forEach((link) => {
     link.addEventListener('click', () => {
-      console.log('[Conversão] Clique em CTA do WhatsApp:', link.id || link.textContent.trim());
-      // Exemplo de integração futura:
-      // if (typeof gtag === 'function') gtag('event', 'click_whatsapp');
-      // if (typeof fbq === 'function') fbq('track', 'Contact');
+      const ctaLabel = link.id || link.textContent.trim();
+      console.log('[Conversão] Clique em CTA do WhatsApp:', ctaLabel);
+
+      // Google Analytics 4
+      if (gaReady && typeof window.gtag === 'function') {
+        window.gtag('event', 'click_whatsapp', {
+          event_category: 'conversao',
+          event_label: ctaLabel,
+        });
+      }
+
+      // Meta Pixel
+      if (pixelReady && typeof window.fbq === 'function') {
+        window.fbq('track', 'Contact', { content_name: ctaLabel });
+      }
     });
   });
 
