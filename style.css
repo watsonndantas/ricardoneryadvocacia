@@ -157,152 +157,103 @@ img { max-width: 100%; display: block; }
   display: block;
 }
 
-/* ===== Hero (1ª dobra) ===== */
-.hero {
-  padding: 100px 0 80px;
+/* =====================================================
+   VISÃO GERAL — grade 2x2 (quatro quadrantes)
+   Foto | Objetivo
+   Etapas | Sobre o advogado
+   ===================================================== */
+.overview {
+  padding: 64px 0 90px;
   background:
-    radial-gradient(circle at 15% 20%, rgba(245, 96, 64, 0.12) 0%, transparent 45%),
-    radial-gradient(circle at 85% 30%, rgba(225, 48, 108, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 15% 15%, rgba(245, 96, 64, 0.10) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(225, 48, 108, 0.10) 0%, transparent 45%),
     var(--bg);
+}
+
+.quad-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "photo objective"
+    "steps info";
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.quad {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.quad--photo {
+  grid-area: photo;
+  background: var(--bg-alt);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
   text-align: center;
 }
 
-.hero__inner {
-  max-width: 780px;
+.quad--objective {
+  grid-area: objective;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
 }
 
-.hero__title {
-  font-size: clamp(2.2rem, 5vw, 3.4rem);
+.quad--steps {
+  grid-area: steps;
+  background: var(--bg-alt);
+  border-right: 1px solid var(--border);
+}
+
+.quad--info {
+  grid-area: info;
+  background: var(--bg-card);
+}
+
+/* ----- Tipografia comum dos quadrantes ----- */
+.quad__title {
+  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+}
+
+.quad--objective .quad__title {
+  font-size: clamp(2rem, 3.2vw, 2.6rem);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
-.hero__subtitle {
-  font-size: 1.15rem;
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
+.quad__title--sm {
+  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
 }
 
-.hero__actions {
-  margin-top: 32px;
+.quad__text {
+  text-align: justify;
+  text-align-last: left;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }
 
-.hero__note {
-  margin-top: 14px;
+.quad__note {
+  margin-top: 12px;
   font-size: 0.85rem;
   color: var(--text-muted);
 }
 
-.hero__trust {
-  margin-top: 56px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  justify-content: center;
-  border-top: 1px solid var(--border);
-  padding-top: 32px;
-}
-
-.trust-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 120px;
-}
-
-.trust-item strong {
-  font-family: var(--font-heading);
-  font-size: 1.3rem;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.trust-item span {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-/* ===== Como Funciona (2ª dobra) ===== */
-.how {
-  padding: 90px 0;
-  background: var(--bg-alt);
-}
-
-.section-title {
-  text-align: center;
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
-}
-
-.section-subtitle {
-  text-align: center;
-  max-width: 560px;
-  margin: 0 auto 56px;
-}
-
-.steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
-}
-
-.step {
-  position: relative;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 36px 28px;
-  transition: transform 0.25s ease, border-color 0.25s ease;
-}
-
-.step:hover {
-  transform: translateY(-6px);
-  border-color: var(--ig-pink);
-}
-
-.step__number {
-  position: absolute;
-  top: 20px;
-  right: 24px;
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 1.6rem;
-  opacity: 0.15;
-}
-
-.step__icon {
-  font-size: 2rem;
-  margin-bottom: 16px;
-}
-
-.step h3 {
-  font-size: 1.2rem;
-}
-
-.step p { margin-bottom: 0; }
-
-/* ===== Autoridade (3ª dobra) ===== */
-.authority {
-  padding: 100px 0;
-}
-
-.authority__inner {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 56px;
-  align-items: center;
-}
-
-.authority__photo-frame {
+/* ----- Quadrante 1: Foto ----- */
+.quad__photo-frame {
+  width: 100%;
+  max-width: 260px;
   aspect-ratio: 1 / 1;
   border-radius: var(--radius);
   background: var(--gradient-full);
   padding: 4px;
+  margin: 0 auto 20px;
 }
 
-.authority__photo-frame img {
+.quad__photo-frame img {
   width: 100%;
   height: 100%;
   border-radius: calc(var(--radius) - 4px);
@@ -310,43 +261,85 @@ img { max-width: 100%; display: block; }
   display: block;
 }
 
-.authority__oab {
-  color: var(--text-muted);
-  font-weight: 500;
-  margin-top: -8px;
-  margin-bottom: 20px;
+.quad__photo-caption strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
 }
 
-.authority__list {
+.quad__photo-caption span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ----- Quadrante 3: Etapas ----- */
+.quad__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.quad__step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.quad__step-number {
+  flex-shrink: 0;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.3rem;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.quad__step h3 {
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+.quad__step p {
+  margin-bottom: 0;
+  font-size: 0.93rem;
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+}
+
+/* ----- Quadrante 4: Sobre o advogado ----- */
+.quad__list {
   list-style: none;
   padding: 0;
-  margin: 0 0 28px;
+  margin: 0 0 24px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.authority__list li { color: var(--text); }
+.quad__list li { color: var(--text); }
 
-.authority__contact {
+.quad__contact {
   display: flex;
-  gap: 40px;
+  gap: 32px;
   flex-wrap: wrap;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   padding: 20px 0;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
 
-.authority__contact strong {
+.quad__contact strong {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
   font-weight: 500;
   margin-bottom: 4px;
 }
 
-.authority__contact span { font-weight: 600; }
+.quad__contact span { font-weight: 600; }
 
 /* ===== Footer (4ª dobra) ===== */
 .footer {
@@ -487,18 +480,23 @@ img { max-width: 100%; display: block; }
 
 /* ===== Responsivo ===== */
 @media (max-width: 860px) {
-  .steps { grid-template-columns: 1fr; }
-
-  .authority__inner {
+  .quad-grid {
     grid-template-columns: 1fr;
-    text-align: center;
+    grid-template-areas:
+      "photo"
+      "objective"
+      "steps"
+      "info";
   }
 
-  .authority__photo-frame { max-width: 260px; margin: 0 auto; }
+  .quad--photo,
+  .quad--objective,
+  .quad--steps {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
 
-  .authority__list { align-items: center; }
-
-  .authority__contact { justify-content: center; }
+  .quad { padding: 40px 32px; }
 
   .footer__inner {
     grid-template-columns: 1fr;
@@ -509,7 +507,9 @@ img { max-width: 100%; display: block; }
 @media (max-width: 520px) {
   .header__cta { display: none; }
 
-  .hero { padding: 72px 0 56px; }
+  .overview { padding: 48px 0 64px; }
+
+  .quad { padding: 32px 24px; }
 
   .whatsapp-float {
     width: 56px;

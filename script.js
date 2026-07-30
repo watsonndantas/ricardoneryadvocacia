@@ -65,9 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* -----------------------------------------------------
      3) SCROLL REVEAL — animação sutil de entrada das seções
      ----------------------------------------------------- */
-  const revealTargets = document.querySelectorAll(
-    '.step, .authority__photo, .authority__content, .hero__inner'
-  );
+  const revealTargets = document.querySelectorAll('.quad');
 
   revealTargets.forEach((el) => el.classList.add('reveal'));
 
