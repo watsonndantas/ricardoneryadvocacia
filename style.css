@@ -108,6 +108,17 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 12px 32px rgba(225, 48, 108, 0.5);
 }
 
+.btn--whatsapp {
+  background: linear-gradient(90deg, #25d366 0%, #128c7e 100%);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
+}
+
+.btn--whatsapp:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(37, 211, 102, 0.5);
+}
+
 .btn--lg {
   padding: 18px 36px;
   font-size: 1.1rem;
