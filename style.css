@@ -185,7 +185,7 @@ img { max-width: 100%; display: block; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
-    "photo objective"
+    "objective photo"
     "steps info";
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -202,7 +202,6 @@ img { max-width: 100%; display: block; }
 .quad--photo {
   grid-area: photo;
   background: var(--bg-alt);
-  border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   align-items: center;
   text-align: center;
@@ -211,6 +210,7 @@ img { max-width: 100%; display: block; }
 .quad--objective {
   grid-area: objective;
   background: var(--bg-card);
+  border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
 
@@ -360,6 +360,70 @@ img { max-width: 100%; display: block; }
 }
 
 .quad__contact span { font-weight: 600; }
+
+/* =====================================================
+   FAQ — perguntas frequentes (SEO + relevância de Ads)
+   ===================================================== */
+.faq {
+  padding: 20px 0 90px;
+  background: var(--bg);
+}
+
+.faq .quad__title {
+  margin-bottom: 32px;
+  max-width: 640px;
+}
+
+.faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.faq__item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 24px;
+}
+
+.faq__item summary {
+  padding: 16px 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.faq__item summary::-webkit-details-marker { display: none; }
+
+.faq__item summary::after {
+  content: '+';
+  flex-shrink: 0;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: #ff8a65;
+  transition: transform 0.2s ease;
+}
+
+.faq__item[open] summary::after {
+  content: '−';
+}
+
+.faq__item p {
+  margin: 0 0 18px;
+  font-size: 0.93rem;
+  text-align: justify;
+  text-align-last: left;
+}
+
+.faq__cta { margin-top: 8px; }
 
 /* ===== Footer (4ª dobra) ===== */
 .footer {

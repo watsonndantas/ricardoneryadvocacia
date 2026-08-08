@@ -89,7 +89,80 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* -----------------------------------------------------
-     4) RASTREAMENTO DE CONVERSÃO — Google Analytics 4 + Meta Pixel
+     4) ATRIBUIÇÃO DE CAMPANHA (UTM) — para medir retorno de Ads
+     Captura utm_source/utm_medium/utm_campaign da URL (quando o
+     visitante vem de um anúncio) e guarda na sessão. Isso permite
+     saber, mesmo depois que a conversa segue no WhatsApp, qual
+     campanha/anúncio gerou aquele contato.
+     ----------------------------------------------------- */
+  const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  const UTM_STORAGE_KEY = 'rn_utm_params';
+
+  const readUtmFromUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    const utm = {};
+    UTM_KEYS.forEach((key) => {
+      const value = params.get(key);
+      if (value) utm[key] = value;
+    });
+    return utm;
+  };
+
+  let utmParams = {};
+  try {
+    const fromUrl = readUtmFromUrl();
+    if (Object.keys(fromUrl).length) {
+      utmParams = fromUrl;
+      sessionStorage.setItem(UTM_STORAGE_KEY, JSON.stringify(fromUrl));
+    } else {
+      const stored = sessionStorage.getItem(UTM_STORAGE_KEY);
+      if (stored) utmParams = JSON.parse(stored);
+    }
+  } catch (e) {
+    // sessionStorage indisponível (ex.: navegação privada) — segue sem UTM
+  }
+
+  const utmMessageSuffix = () => {
+    if (!utmParams.utm_source && !utmParams.utm_campaign) return '';
+    const parts = [];
+    if (utmParams.utm_source) parts.push(`origem: ${utmParams.utm_source}`);
+    if (utmParams.utm_campaign) parts.push(`campanha: ${utmParams.utm_campaign}`);
+    return parts.length ? `\n\n[${parts.join(' | ')}]` : '';
+  };
+
+  /* -----------------------------------------------------
+     4.1) INSERÇÃO DINÂMICA DE PALAVRA-CHAVE (DKI) — Google Ads
+     Quando o clique vem de um anúncio segmentado por palavra-chave
+     (ex.: "conta banida", "conta hackeada"), troca o selo acima do
+     título para usar exatamente o termo que a pessoa buscou. Isso
+     aumenta a relevância percebida (e o Índice de Qualidade do
+     anúncio, que reduz o custo por clique no Google Ads).
+     Funciona com utm_term (padrão do ValueTrack {keyword} do Google
+     Ads) ou com o parâmetro ?kw= usado manualmente em outras mídias.
+     ----------------------------------------------------- */
+  const KEYWORD_BADGES = [
+    { match: /banid|banimento/i, label: 'Especialista em conta banida no Instagram' },
+    { match: /suspens/i, label: 'Especialista em conta suspensa no Instagram' },
+    { match: /hack|invad|roubad|clonad/i, label: 'Especialista em conta hackeada no Instagram' },
+    { match: /desativad/i, label: 'Especialista em conta desativada no Instagram' },
+    { match: /liminar|urg[êe]ncia/i, label: 'Liminar para recuperação de conta no Instagram' },
+  ];
+
+  const adKeyword = (() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('utm_term') || params.get('kw') || utmParams.utm_term || '';
+  })();
+
+  if (adKeyword) {
+    const badgeEl = document.querySelector('#hero .badge');
+    const matchedBadge = KEYWORD_BADGES.find((entry) => entry.match.test(adKeyword));
+    if (badgeEl && matchedBadge) {
+      badgeEl.textContent = matchedBadge.label;
+    }
+  }
+
+  /* -----------------------------------------------------
+     5) RASTREAMENTO DE CONVERSÃO — Google Analytics 4 + Meta Pixel
      Dispara um evento sempre que o visitante clica em qualquer
      CTA que leve ao WhatsApp (Hero, Autoridade e botão flutuante).
      ----------------------------------------------------- */
@@ -109,19 +182,35 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('a[href*="wa.me"]').forEach((link) => {
     link.addEventListener('click', () => {
       const ctaLabel = link.id || link.textContent.trim();
-      console.log('[Conversão] Clique em CTA do WhatsApp:', ctaLabel);
+
+      // Anexa a origem da campanha à mensagem, se o clique vier de um anúncio
+      const suffix = utmMessageSuffix();
+      if (suffix) {
+        try {
+          const url = new URL(link.href);
+          const currentText = url.searchParams.get('text') || '';
+          url.searchParams.set('text', currentText + suffix);
+          link.href = url.toString();
+        } catch (e) {
+          // href inválido — segue sem anexar UTM
+        }
+      }
+
+      console.log('[Conversão] Clique em CTA do WhatsApp:', ctaLabel, utmParams);
 
       // Google Analytics 4
       if (gaReady && typeof window.gtag === 'function') {
         window.gtag('event', 'click_whatsapp', {
           event_category: 'conversao',
           event_label: ctaLabel,
+          ...utmParams,
         });
       }
 
-      // Meta Pixel
+      // Meta Pixel — Contact (contato) + Lead (sinal usado para otimizar campanhas)
       if (pixelReady && typeof window.fbq === 'function') {
-        window.fbq('track', 'Contact', { content_name: ctaLabel });
+        window.fbq('track', 'Contact', { content_name: ctaLabel, ...utmParams });
+        window.fbq('track', 'Lead', { content_name: ctaLabel, ...utmParams });
       }
     });
   });

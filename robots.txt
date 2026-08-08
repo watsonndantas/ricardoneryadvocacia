@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ricardoneryadvocacia.com.br/sitemap.xml
