@@ -292,6 +292,40 @@ img { max-width: 100%; display: block; }
   font-size: 0.9rem;
 }
 
+/* ===== Link do Instagram (@advocaciaricardo) ===== */
+.instagram-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  background: var(--gradient-full);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(225, 48, 108, 0.3);
+}
+
+.instagram-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(225, 48, 108, 0.45);
+}
+
+.instagram-link svg { flex-shrink: 0; }
+
+.footer__col a.instagram-link,
+.footer__col a.instagram-link:hover {
+  color: #fff;
+}
+
+.instagram-link--footer {
+  margin-top: 12px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
 /* ----- Quadrante 3: Etapas ----- */
 .quad__steps {
   display: flex;
@@ -600,5 +634,10 @@ img { max-width: 100%; display: block; }
     height: 56px;
     bottom: 20px;
     right: 20px;
+  }
+
+  .instagram-link {
+    font-size: 0.82rem;
+    padding: 8px 16px;
   }
 }

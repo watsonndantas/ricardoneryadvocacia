@@ -215,4 +215,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* -----------------------------------------------------
+     6) RASTREAMENTO — cliques no link do Instagram
+     Reforça autoridade/credibilidade e ajuda a medir se o
+     perfil do Instagram (@advocaciaricardo) contribui para
+     engajamento vindo de campanhas (Ads) e busca orgânica.
+     ----------------------------------------------------- */
+  document.querySelectorAll('a[href*="instagram.com"]').forEach((link) => {
+    link.addEventListener('click', () => {
+      const ctaLabel = link.id || link.textContent.trim();
+
+      console.log('[Engajamento] Clique no Instagram:', ctaLabel, utmParams);
+
+      // Google Analytics 4
+      if (gaReady && typeof window.gtag === 'function') {
+        window.gtag('event', 'click_instagram', {
+          event_category: 'engajamento',
+          event_label: ctaLabel,
+          ...utmParams,
+        });
+      }
+
+      // Meta Pixel — evento customizado (não é conversão, mas sinaliza interesse)
+      if (pixelReady && typeof window.fbq === 'function') {
+        window.fbq('trackCustom', 'ClickInstagram', { content_name: ctaLabel, ...utmParams });
+      }
+    });
+  });
+
 });
