@@ -169,12 +169,10 @@ img { max-width: 100%; display: block; }
 }
 
 /* =====================================================
-   VISÃO GERAL — grade 2x2 (quatro quadrantes)
-   Foto | Objetivo
-   Etapas | Sobre o advogado
+   VISÃO GERAL — Objetivo | Foto, depois Sobre (full width)
    ===================================================== */
 .overview {
-  padding: 64px 0 90px;
+  padding: 56px 0 64px;
   background:
     radial-gradient(circle at 15% 15%, rgba(245, 96, 64, 0.10) 0%, transparent 45%),
     radial-gradient(circle at 85% 85%, rgba(225, 48, 108, 0.10) 0%, transparent 45%),
@@ -186,7 +184,7 @@ img { max-width: 100%; display: block; }
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     "objective photo"
-    "steps info";
+    "info info";
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
@@ -214,15 +212,11 @@ img { max-width: 100%; display: block; }
   border-bottom: 1px solid var(--border);
 }
 
-.quad--steps {
-  grid-area: steps;
-  background: var(--bg-alt);
-  border-right: 1px solid var(--border);
-}
-
 .quad--info {
   grid-area: info;
   background: var(--bg-card);
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
 /* ----- Tipografia comum dos quadrantes ----- */
@@ -231,9 +225,16 @@ img { max-width: 100%; display: block; }
 }
 
 .quad--objective .quad__title {
-  font-size: clamp(2rem, 3.2vw, 2.6rem);
+  font-size: clamp(2.35rem, 4.6vw, 3.35rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin-bottom: 18px;
+}
+
+.quad--objective .quad__title .gradient-text {
+  display: inline;
+  font-weight: 800;
 }
 
 .quad__title--sm {
@@ -241,10 +242,14 @@ img { max-width: 100%; display: block; }
 }
 
 .quad__text {
-  text-align: justify;
-  text-align-last: left;
-  -webkit-hyphens: auto;
-  hyphens: auto;
+  text-align: left;
+  max-width: 36em;
+}
+
+.quad--objective .quad__text {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin-bottom: 20px;
 }
 
 .quad__note {
@@ -256,9 +261,9 @@ img { max-width: 100%; display: block; }
 .quad__tagline {
   margin: 0 0 20px;
   text-transform: uppercase;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: #ff8a65;
 }
 
@@ -387,51 +392,14 @@ img { max-width: 100%; display: block; }
   font-size: 0.85rem;
 }
 
-/* ----- Quadrante 3: Etapas ----- */
-.quad__steps {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.quad__step {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-.quad__step-number {
-  flex-shrink: 0;
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 1.3rem;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.quad__step h3 {
-  font-size: 1.05rem;
-  margin-bottom: 6px;
-}
-
-.quad__step p {
-  margin-bottom: 0;
-  font-size: 0.93rem;
-  text-align: justify;
-  text-align-last: left;
-  hyphens: auto;
-}
-
-/* ----- Quadrante 4: Sobre o advogado ----- */
+/* ----- Sobre o advogado ----- */
 .quad__list {
   list-style: none;
   padding: 0;
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .quad__list li { color: var(--text); }
@@ -440,8 +408,8 @@ img { max-width: 100%; display: block; }
   display: flex;
   gap: 32px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
-  padding: 20px 0;
+  margin-bottom: 20px;
+  padding: 16px 0;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
@@ -457,43 +425,52 @@ img { max-width: 100%; display: block; }
 .quad__contact span { font-weight: 600; }
 
 /* =====================================================
-   FAQ — perguntas frequentes (SEO + relevância de Ads)
+   FAQ — compacto (conversão)
    ===================================================== */
 .faq {
-  padding: 20px 0 90px;
+  padding: 8px 0 56px;
   background: var(--bg);
 }
 
+.faq .badge {
+  margin-bottom: 12px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+}
+
 .faq .quad__title {
-  margin-bottom: 32px;
-  max-width: 640px;
+  margin-bottom: 18px;
+  max-width: 520px;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
 }
 
 .faq__list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 32px;
+  gap: 8px;
+  margin-bottom: 20px;
+  max-width: 720px;
 }
 
 .faq__item {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 8px 24px;
+  border-radius: 10px;
+  padding: 2px 16px;
 }
 
 .faq__item summary {
-  padding: 16px 0;
+  padding: 12px 0;
   font-family: var(--font-heading);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
   list-style: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  line-height: 1.35;
 }
 
 .faq__item summary::-webkit-details-marker { display: none; }
@@ -501,7 +478,7 @@ img { max-width: 100%; display: block; }
 .faq__item summary::after {
   content: '+';
   flex-shrink: 0;
-  font-size: 1.4rem;
+  font-size: 1.15rem;
   font-weight: 400;
   color: #ff8a65;
   transition: transform 0.2s ease;
@@ -512,13 +489,17 @@ img { max-width: 100%; display: block; }
 }
 
 .faq__item p {
-  margin: 0 0 18px;
-  font-size: 0.93rem;
-  text-align: justify;
-  text-align-last: left;
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: left;
 }
 
-.faq__cta { margin-top: 8px; }
+.faq__cta {
+  margin-top: 4px;
+  padding: 12px 22px;
+  font-size: 0.92rem;
+}
 
 /* ===== Footer (4ª dobra) ===== */
 .footer {
@@ -664,18 +645,20 @@ img { max-width: 100%; display: block; }
     grid-template-areas:
       "photo"
       "objective"
-      "steps"
       "info";
   }
 
   .quad--photo,
-  .quad--objective,
-  .quad--steps {
+  .quad--objective {
     border-right: 0;
     border-bottom: 1px solid var(--border);
   }
 
   .quad { padding: 40px 32px; }
+
+  .quad--objective .quad__title {
+    font-size: clamp(2rem, 7vw, 2.6rem);
+  }
 
   .footer__inner {
     grid-template-columns: 1fr;
@@ -686,9 +669,13 @@ img { max-width: 100%; display: block; }
 @media (max-width: 520px) {
   .header__cta { display: none; }
 
-  .overview { padding: 48px 0 64px; }
+  .overview { padding: 40px 0 48px; }
 
-  .quad { padding: 32px 24px; }
+  .quad { padding: 28px 20px; }
+
+  .quad--objective .quad__title {
+    font-size: clamp(1.85rem, 8.5vw, 2.35rem);
+  }
 
   .platforms {
     flex-direction: column;
@@ -696,6 +683,10 @@ img { max-width: 100%; display: block; }
 
   .platforms__item {
     width: 100%;
+  }
+
+  .faq {
+    padding: 4px 0 48px;
   }
 
   .whatsapp-float {
