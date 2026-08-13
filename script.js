@@ -1,5 +1,5 @@
 /* =========================================================
-   Recupere seu Instagram Hoje — Dr. Ricardo Nery
+   Recupere Instagram, WhatsApp e Facebook — Dr. Ricardo Nery
    Vanilla JS — sem dependências externas
    ========================================================= */
 
@@ -141,11 +141,14 @@ document.addEventListener('DOMContentLoaded', () => {
      Ads) ou com o parâmetro ?kw= usado manualmente em outras mídias.
      ----------------------------------------------------- */
   const KEYWORD_BADGES = [
-    { match: /banid|banimento/i, label: 'Especialista em conta banida no Instagram' },
-    { match: /suspens/i, label: 'Especialista em conta suspensa no Instagram' },
-    { match: /hack|invad|roubad|clonad/i, label: 'Especialista em conta hackeada no Instagram' },
-    { match: /desativad/i, label: 'Especialista em conta desativada no Instagram' },
-    { match: /liminar|urg[êe]ncia/i, label: 'Liminar para recuperação de conta no Instagram' },
+    { match: /whatsapp/i, label: 'Especialista em WhatsApp banido' },
+    { match: /facebook/i, label: 'Especialista em recuperação de Facebook' },
+    { match: /instagram/i, label: 'Especialista em recuperação de Instagram' },
+    { match: /banid|banimento/i, label: 'Especialista em conta banida' },
+    { match: /suspens/i, label: 'Especialista em conta suspensa' },
+    { match: /hack|invad|roubad|clonad/i, label: 'Especialista em conta hackeada' },
+    { match: /desativad/i, label: 'Especialista em conta desativada' },
+    { match: /liminar|urg[êe]ncia/i, label: 'Liminar para recuperação de conta' },
   ];
 
   const adKeyword = (() => {
