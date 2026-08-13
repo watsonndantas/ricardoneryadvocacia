@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://watsonndantas.github.io/ricardoneryadvocacia/sitemap.xml
+Sitemap: https://ricardoneryadvocaciabr.com.br/sitemap.xml
