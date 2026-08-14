@@ -165,20 +165,40 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* -----------------------------------------------------
-     5) RASTREAMENTO DE CONVERSÃO — Google Analytics 4 + Meta Pixel
-     Dispara um evento sempre que o visitante clica em qualquer
-     CTA que leve ao WhatsApp (Hero, Autoridade e botão flutuante).
+     5) RASTREAMENTO DE CONVERSÃO — GA4 + Meta Pixel + Google Ads
+     Dispara eventos sempre que o visitante clica em qualquer
+     CTA que leve ao WhatsApp (Hero, Sobre e botão flutuante).
+
+     Google Ads: se GOOGLE_ADS_ID + GOOGLE_ADS_CONVERSION_LABEL
+     estiverem preenchidos em SITE_CONFIG, dispara conversion.
+     Sem ID de Ads, ainda assim disparamos click_whatsapp e
+     generate_lead no GA4 — importe/vincule no painel do Ads.
      ----------------------------------------------------- */
   const siteConfig = window.SITE_CONFIG || {};
   const isPlaceholder = (value, placeholder) => !value || value === placeholder;
 
   const gaReady = !isPlaceholder(siteConfig.GA_MEASUREMENT_ID, 'G-XXXXXXXXXX');
   const pixelReady = !isPlaceholder(siteConfig.META_PIXEL_ID, '0000000000000000');
+  const adsReady = !isPlaceholder(siteConfig.GOOGLE_ADS_ID, 'AW-XXXXXXXXXX');
+  const adsConversionLabel = (siteConfig.GOOGLE_ADS_CONVERSION_LABEL || '').trim();
 
   if (!gaReady || !pixelReady) {
     console.warn(
       '[Analytics] Configure os IDs reais em window.SITE_CONFIG (no <head> do index.html) ' +
       'para ativar o Google Analytics 4 e/ou o Meta Pixel.'
+    );
+  }
+
+  if (!adsReady) {
+    console.warn(
+      '[Google Ads] GOOGLE_ADS_ID ainda é placeholder (AW-XXXXXXXXXX). ' +
+      'Cole o ID real em SITE_CONFIG para carregar o tag AW-*. ' +
+      'Enquanto isso, use click_whatsapp / generate_lead no GA4 e vincule GA4↔Ads no painel.'
+    );
+  } else if (!adsConversionLabel) {
+    console.warn(
+      '[Google Ads] GOOGLE_ADS_ID configurado, mas GOOGLE_ADS_CONVERSION_LABEL está vazio. ' +
+      'Sem o rótulo, o evento conversion do Ads não dispara no clique do WhatsApp.'
     );
   }
 
@@ -201,12 +221,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
       console.log('[Conversão] Clique em CTA do WhatsApp:', ctaLabel, utmParams);
 
-      // Google Analytics 4
+      // Google Analytics 4 — clique + lead recomendado (sem PII)
       if (gaReady && typeof window.gtag === 'function') {
         window.gtag('event', 'click_whatsapp', {
           event_category: 'conversao',
           event_label: ctaLabel,
           ...utmParams,
+        });
+        window.gtag('event', 'generate_lead', {
+          event_category: 'conversao',
+          event_label: ctaLabel,
+          currency: 'BRL',
+          value: 0,
+          ...utmParams,
+        });
+      }
+
+      // Google Ads — conversão de clique no WhatsApp (só com ID + rótulo reais)
+      if (adsReady && adsConversionLabel && typeof window.gtag === 'function') {
+        window.gtag('event', 'conversion', {
+          send_to: `${siteConfig.GOOGLE_ADS_ID}/${adsConversionLabel}`,
+          event_category: 'conversao',
+          event_label: ctaLabel,
         });
       }
 
