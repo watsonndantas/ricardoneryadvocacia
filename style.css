@@ -120,9 +120,9 @@ img { max-width: 100%; display: block; }
 }
 
 .btn--lg {
-  padding: 27px 54px;
-  font-size: 1.65rem;
-  min-height: 4.05rem;
+  padding: 20px 40px;
+  font-size: 1.24rem;
+  min-height: 3.04rem;
 }
 
 .btn--ghost {
@@ -596,8 +596,8 @@ img { max-width: 100%; display: block; }
   bottom: 28px;
   right: 28px;
   z-index: 60;
-  width: 186px;
-  height: 186px;
+  width: 93px;
+  height: 93px;
   border-radius: 50%;
   background: #25d366;
   color: #fff;
@@ -620,9 +620,9 @@ img { max-width: 100%; display: block; }
 
 @keyframes whatsapp-jump {
   0%   { transform: translateY(0); }
-  30%  { transform: translateY(-54px); }
+  30%  { transform: translateY(-27px); }
   50%  { transform: translateY(0); }
-  65%  { transform: translateY(-24px); }
+  65%  { transform: translateY(-12px); }
   80%  { transform: translateY(0); }
   100% { transform: translateY(0); }
 }
@@ -691,8 +691,8 @@ img { max-width: 100%; display: block; }
   }
 
   .whatsapp-float {
-    width: 168px;
-    height: 168px;
+    width: 84px;
+    height: 84px;
     bottom: 20px;
     right: 20px;
   }
