@@ -89,46 +89,64 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* -----------------------------------------------------
-     4) ATRIBUIÇÃO DE CAMPANHA (UTM) — para medir retorno de Ads
-     Captura utm_source/utm_medium/utm_campaign da URL (quando o
-     visitante vem de um anúncio) e guarda na sessão. Isso permite
-     saber, mesmo depois que a conversa segue no WhatsApp, qual
-     campanha/anúncio gerou aquele contato.
+     4) ATRIBUIÇÃO DE CAMPANHA (UTM + clids) — tráfego pago
+     Captura UTMs e IDs de clique (gclid/gbraid/wbraid/fbclid)
+     da URL, guarda em sessionStorage e anexa um sufixo curto
+     à mensagem do WhatsApp + eventos de analytics.
      ----------------------------------------------------- */
   const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
-  const UTM_STORAGE_KEY = 'rn_utm_params';
+  const CLICK_ID_KEYS = ['gclid', 'gbraid', 'wbraid', 'fbclid'];
+  const ATTR_KEYS = UTM_KEYS.concat(CLICK_ID_KEYS);
+  const ATTR_STORAGE_KEY = 'rn_utm_params';
 
-  const readUtmFromUrl = () => {
+  const readAttrFromUrl = () => {
     const params = new URLSearchParams(window.location.search);
-    const utm = {};
-    UTM_KEYS.forEach((key) => {
+    const attr = {};
+    ATTR_KEYS.forEach((key) => {
       const value = params.get(key);
-      if (value) utm[key] = value;
+      if (value) attr[key] = value;
     });
-    return utm;
+    return attr;
   };
 
   let utmParams = {};
   try {
-    const fromUrl = readUtmFromUrl();
+    const fromUrl = readAttrFromUrl();
     if (Object.keys(fromUrl).length) {
-      utmParams = fromUrl;
-      sessionStorage.setItem(UTM_STORAGE_KEY, JSON.stringify(fromUrl));
+      // Mescla com o que já estava na sessão (ex.: UTM numa visita, gclid noutra)
+      let previous = {};
+      try {
+        const stored = sessionStorage.getItem(ATTR_STORAGE_KEY);
+        if (stored) previous = JSON.parse(stored) || {};
+      } catch (e) { /* ignore */ }
+      utmParams = Object.assign({}, previous, fromUrl);
+      sessionStorage.setItem(ATTR_STORAGE_KEY, JSON.stringify(utmParams));
     } else {
-      const stored = sessionStorage.getItem(UTM_STORAGE_KEY);
+      const stored = sessionStorage.getItem(ATTR_STORAGE_KEY);
       if (stored) utmParams = JSON.parse(stored);
     }
   } catch (e) {
-    // sessionStorage indisponível (ex.: navegação privada) — segue sem UTM
+    // sessionStorage indisponível (ex.: navegação privada) — segue sem atribuição
   }
 
+  const shortId = (value) => {
+    if (!value || typeof value !== 'string') return '';
+    return value.length > 12 ? value.slice(0, 8) + '…' : value;
+  };
+
   const utmMessageSuffix = () => {
-    if (!utmParams.utm_source && !utmParams.utm_campaign) return '';
     const parts = [];
     if (utmParams.utm_source) parts.push(`origem: ${utmParams.utm_source}`);
     if (utmParams.utm_campaign) parts.push(`campanha: ${utmParams.utm_campaign}`);
+    if (utmParams.gclid) parts.push(`gclid: ${shortId(utmParams.gclid)}`);
+    if (utmParams.gbraid) parts.push(`gbraid: ${shortId(utmParams.gbraid)}`);
+    if (utmParams.wbraid) parts.push(`wbraid: ${shortId(utmParams.wbraid)}`);
+    if (utmParams.fbclid) parts.push(`fbclid: ${shortId(utmParams.fbclid)}`);
     return parts.length ? `\n\n[${parts.join(' | ')}]` : '';
   };
+
+  // Params enviados aos eventos (sem truncar — analytics precisam do valor completo)
+  const attributionForEvents = () => Object.assign({}, utmParams);
 
   /* -----------------------------------------------------
      4.1) INSERÇÃO DINÂMICA DE PALAVRA-CHAVE (DKI) — Google Ads
@@ -167,12 +185,12 @@ document.addEventListener('DOMContentLoaded', () => {
   /* -----------------------------------------------------
      5) RASTREAMENTO DE CONVERSÃO — GA4 + Meta Pixel + Google Ads
      Dispara eventos sempre que o visitante clica em qualquer
-     CTA que leve ao WhatsApp (Hero, Sobre e botão flutuante).
+     CTA que leve ao WhatsApp (Hero, FAQ e botão flutuante).
 
-     Google Ads: se GOOGLE_ADS_ID + GOOGLE_ADS_CONVERSION_LABEL
-     estiverem preenchidos em SITE_CONFIG, dispara conversion.
-     Sem ID de Ads, ainda assim disparamos click_whatsapp e
-     generate_lead no GA4 — importe/vincule no painel do Ads.
+     Google Ads: remarketing já roda com GOOGLE_ADS_ID sozinho.
+     Evento conversion só dispara se GOOGLE_ADS_CONVERSION_LABEL
+     estiver preenchido. Sem o rótulo, use click_whatsapp /
+     generate_lead no GA4 e importe no painel do Ads.
      ----------------------------------------------------- */
   const siteConfig = window.SITE_CONFIG || {};
   const isPlaceholder = (value, placeholder) => !value || value === placeholder;
@@ -196,17 +214,19 @@ document.addEventListener('DOMContentLoaded', () => {
       'Enquanto isso, use click_whatsapp / generate_lead no GA4 e vincule GA4↔Ads no painel.'
     );
   } else if (!adsConversionLabel) {
-    console.warn(
-      '[Google Ads] GOOGLE_ADS_ID configurado, mas GOOGLE_ADS_CONVERSION_LABEL está vazio. ' +
-      'Sem o rótulo, o evento conversion do Ads não dispara no clique do WhatsApp.'
+    console.info(
+      '[Google Ads] Remarketing ativo (AW configurado). ' +
+      'GOOGLE_ADS_CONVERSION_LABEL vazio — cole o rótulo em SITE_CONFIG para contar ' +
+      'conversões de clique no WhatsApp no Ads, ou importe generate_lead / click_whatsapp do GA4.'
     );
   }
 
   document.querySelectorAll('a[href*="wa.me"]').forEach((link) => {
     link.addEventListener('click', () => {
       const ctaLabel = link.id || link.textContent.trim();
+      const attr = attributionForEvents();
 
-      // Anexa a origem da campanha à mensagem, se o clique vier de um anúncio
+      // Anexa origem da campanha + clids à mensagem do WhatsApp
       const suffix = utmMessageSuffix();
       if (suffix) {
         try {
@@ -215,29 +235,29 @@ document.addEventListener('DOMContentLoaded', () => {
           url.searchParams.set('text', currentText + suffix);
           link.href = url.toString();
         } catch (e) {
-          // href inválido — segue sem anexar UTM
+          // href inválido — segue sem anexar atribuição
         }
       }
 
-      console.log('[Conversão] Clique em CTA do WhatsApp:', ctaLabel, utmParams);
+      console.log('[Conversão] Clique em CTA do WhatsApp:', ctaLabel, attr);
 
-      // Google Analytics 4 — clique + lead recomendado (sem PII)
+      // Google Analytics 4 — clique + lead (importáveis no Google Ads)
       if (gaReady && typeof window.gtag === 'function') {
         window.gtag('event', 'click_whatsapp', {
           event_category: 'conversao',
           event_label: ctaLabel,
-          ...utmParams,
+          ...attr,
         });
         window.gtag('event', 'generate_lead', {
           event_category: 'conversao',
           event_label: ctaLabel,
           currency: 'BRL',
           value: 0,
-          ...utmParams,
+          ...attr,
         });
       }
 
-      // Google Ads — conversão de clique no WhatsApp (só com ID + rótulo reais)
+      // Google Ads — conversão só com ID + rótulo reais (sem inventar rótulo)
       if (adsReady && adsConversionLabel && typeof window.gtag === 'function') {
         window.gtag('event', 'conversion', {
           send_to: `${siteConfig.GOOGLE_ADS_ID}/${adsConversionLabel}`,
@@ -246,10 +266,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      // Meta Pixel — Contact (contato) + Lead (sinal usado para otimizar campanhas)
+      // Meta Pixel — Contact + Lead (com UTMs/clids quando existirem)
       if (pixelReady && typeof window.fbq === 'function') {
-        window.fbq('track', 'Contact', { content_name: ctaLabel, ...utmParams });
-        window.fbq('track', 'Lead', { content_name: ctaLabel, ...utmParams });
+        window.fbq('track', 'Contact', { content_name: ctaLabel, ...attr });
+        window.fbq('track', 'Lead', { content_name: ctaLabel, ...attr });
       }
     });
   });
@@ -263,21 +283,20 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('a[href*="instagram.com"]').forEach((link) => {
     link.addEventListener('click', () => {
       const ctaLabel = link.id || link.textContent.trim();
+      const attr = attributionForEvents();
 
-      console.log('[Engajamento] Clique no Instagram:', ctaLabel, utmParams);
+      console.log('[Engajamento] Clique no Instagram:', ctaLabel, attr);
 
-      // Google Analytics 4
       if (gaReady && typeof window.gtag === 'function') {
         window.gtag('event', 'click_instagram', {
           event_category: 'engajamento',
           event_label: ctaLabel,
-          ...utmParams,
+          ...attr,
         });
       }
 
-      // Meta Pixel — evento customizado (não é conversão, mas sinaliza interesse)
       if (pixelReady && typeof window.fbq === 'function') {
-        window.fbq('trackCustom', 'ClickInstagram', { content_name: ctaLabel, ...utmParams });
+        window.fbq('trackCustom', 'ClickInstagram', { content_name: ctaLabel, ...attr });
       }
     });
   });

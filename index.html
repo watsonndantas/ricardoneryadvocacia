@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
 
   <!-- ===== Dados estruturados (SEO / rich results no Google) ===== -->
   <script type="application/ld+json">
@@ -129,15 +129,18 @@
   </script>
 
   <!-- =========================================================
-       CONFIGURAÇÃO DE ANALYTICS / ADS
+       CONFIGURAÇÃO DE ANALYTICS / ADS (tráfego pago)
        - GA_MEASUREMENT_ID: Google Analytics 4 (já ativo)
        - META_PIXEL_ID: Meta Pixel (já ativo)
-       - GOOGLE_ADS_ID: cole o ID real no formato AW-XXXXXXXXXX
-         (deixe o placeholder se ainda não tiver conta de Ads)
-       - GOOGLE_ADS_CONVERSION_LABEL: rótulo da conversão de clique
-         no WhatsApp (ex.: AbC-DEFgh12). Vazio = só dispara GA4.
-       Vinculação GA4 ↔ Google Ads: faça no painel do Google Ads
-       (Ferramentas → Vinculações → Google Analytics), além deste HTML.
+       - GOOGLE_ADS_ID: AW-2595426751 (remarketing + conversion linker)
+       - GOOGLE_ADS_CONVERSION_LABEL: cole aqui o rótulo da conversão
+         de clique no WhatsApp. Onde achar: Google Ads → Metas e
+         conversões → Conversões → (ação de conversão) → Detalhes
+         da tag → o trecho DEPOIS de AW-2595426751/ (ex.: AbCdEfGhIjK).
+         Vazio = remarketing funciona; evento conversion do Ads NÃO
+         dispara (use GA4 generate_lead / click_whatsapp importados).
+       Vinculação GA4 ↔ Google Ads: painel Ads → Ferramentas →
+       Vinculações → Google Analytics.
        ========================================================= -->
   <script>
     window.SITE_CONFIG = {
@@ -145,7 +148,8 @@
       META_PIXEL_ID: '424272287678459',
       // Google Ads Conversion ID (AW- + dígitos sem hífens)
       GOOGLE_ADS_ID: 'AW-2595426751',
-      // Opcional: rótulo da conversão WhatsApp (Google Ads → Conversões)
+      // Cole o rótulo da conversão WhatsApp abaixo (só a parte após AW-…/)
+      // Exemplo: se a tag for AW-2595426751/AbCdEfGhIjK, cole AbCdEfGhIjK
       GOOGLE_ADS_CONVERSION_LABEL: ''
     };
   </script>
@@ -168,8 +172,15 @@
       window.dataLayer = window.dataLayer || [];
       window.gtag = function () { window.dataLayer.push(arguments); };
       window.gtag('js', new Date());
+      // Mantém gclid/gbraid/wbraid na URL entre páginas (melhor atribuição Ads)
+      window.gtag('set', 'url_passthrough', true);
       if (hasGa) window.gtag('config', gaId);
-      if (hasAds) window.gtag('config', adsId);
+      // Remarketing + conversion linker — funciona sem rótulo de conversão
+      if (hasAds) {
+        window.gtag('config', adsId, {
+          allow_enhanced_conversions: true
+        });
+      }
     })(window.SITE_CONFIG);
   </script>
 
@@ -186,6 +197,10 @@
     }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', window.SITE_CONFIG.META_PIXEL_ID);
     fbq('track', 'PageView');
+    fbq('track', 'ViewContent', {
+      content_name: 'Landing Recuperacao Contas',
+      content_category: 'advocacia_digital'
+    });
   </script>
 </head>
 <body>
@@ -405,6 +420,6 @@
     </svg>
   </a>
 
-  <script src="script.js?v=2"></script>
+  <script src="script.js?v=3"></script>
 </body>
 </html>
