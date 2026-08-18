@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Segurança: GitHub Pages não envia CSP/HSTS/XFO via headers HTTP.
+       Meta CSP cobre o essencial sem bloquear GA4 / Meta Pixel / Google Ads / Fonts.
+       frame-ancestors NÃO funciona em meta — clickjacking exige CDN (ex.: Cloudflare). -->
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://connect.facebook.net https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com https://stats.g.doubleclick.net https://www.google.com https://www.google.com.br https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.facebook.com https://connect.facebook.net https://graph.facebook.com; frame-src https://www.facebook.com https://www.googletagmanager.com https://td.doubleclick.net https://www.google.com; form-action 'self'; upgrade-insecure-requests" />
   <title>Advogado para Recuperar Instagram, WhatsApp Banido e Facebook | Dr. Ricardo Nery</title>
   <meta name="description" content="Advogado no Brasil para recuperar Instagram banido, WhatsApp banido ou Facebook suspenso. Dr. Ricardo Nery (OAB/PI 11.784) atua com liminar quando cabível. Atendimento online — fale no WhatsApp." />
   <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -283,7 +289,7 @@
             </ul>
             <p class="quad__tagline">Atendimento 100% online em todo o Brasil</p>
             <a href="https://wa.me/5586998406999?text=Ol%C3%A1%2C%20Dr.%20Ricardo%20Nery!%20Preciso%20de%20ajuda%20para%20recuperar%20minha%20conta%20no%20Instagram%2C%20WhatsApp%20(banida)%20ou%20Facebook."
-               target="_blank" rel="noopener" class="btn btn--whatsapp btn--lg" id="hero-cta">
+               target="_blank" rel="noopener noreferrer" class="btn btn--whatsapp btn--lg" id="hero-cta">
               💬 Falar agora no WhatsApp
             </a>
             <p class="quad__note">Resposta em minutos · De qualquer estado do país</p>
@@ -317,7 +323,7 @@
               </div>
             </div>
             <a href="https://wa.me/5586998406999?text=Ol%C3%A1%2C%20Dr.%20Ricardo%20Nery!%20Gostaria%20de%20avaliar%20meu%20caso%20de%20recupera%C3%A7%C3%A3o%20de%20conta%20(Instagram%2C%20WhatsApp%20banida%20ou%20Facebook)."
-               target="_blank" rel="noopener" class="btn btn--gradient" id="contato">
+               target="_blank" rel="noopener noreferrer" class="btn btn--gradient" id="contato">
               Quero avaliar meu caso agora
             </a>
           </div>
@@ -350,7 +356,7 @@
         </div>
 
         <a href="https://wa.me/5586998406999?text=Ol%C3%A1%2C%20Dr.%20Ricardo%20Nery!%20Tenho%20uma%20d%C3%BAvida%20sobre%20recupera%C3%A7%C3%A3o%20de%20conta%20(Instagram%2C%20WhatsApp%20banida%20ou%20Facebook)."
-           target="_blank" rel="noopener" class="btn btn--whatsapp faq__cta" id="faq-cta">
+           target="_blank" rel="noopener noreferrer" class="btn btn--whatsapp faq__cta" id="faq-cta">
           💬 Tirar minha dúvida no WhatsApp
         </a>
       </div>
@@ -403,10 +409,12 @@
     <div class="modal__content" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
       <button class="modal__close" data-close-modal aria-label="Fechar">×</button>
       <h3 id="privacy-title">Política de Privacidade</h3>
-      <p>Este site coleta apenas os dados necessários para viabilizar o contato inicial (nome, telefone
-        e/ou mensagem enviada via WhatsApp). As informações são tratadas de forma sigilosa, em
-        conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), e utilizadas
-        exclusivamente para retorno ao contato realizado, não sendo compartilhadas com terceiros.</p>
+      <p>Este site coleta dados de navegação e interação para métricas e anúncios (Google Analytics 4,
+        Meta Pixel e Google Ads), além dos dados que você envia voluntariamente ao contato inicial
+        (nome, telefone e/ou mensagem via WhatsApp). As informações de contato são tratadas de forma
+        sigilosa, em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), e
+        utilizadas para retorno ao contato realizado. Ferramentas de medição/publicidade processam
+        dados de evento conforme as políticas da Google e da Meta.</p>
       <p>Você pode solicitar a qualquer momento a exclusão dos seus dados entrando em contato
         diretamente pelo WhatsApp informado neste site.</p>
     </div>
@@ -414,12 +422,12 @@
 
   <!-- ===== BOTÃO FLUTUANTE WHATSAPP ===== -->
   <a href="https://wa.me/5586998406999?text=Ol%C3%A1%2C%20Dr.%20Ricardo%20Nery!%20Preciso%20de%20ajuda%20para%20recuperar%20minha%20conta%20no%20Instagram%2C%20WhatsApp%20(banida)%20ou%20Facebook."
-     target="_blank" rel="noopener" class="whatsapp-float" id="whatsapp-float" aria-label="Falar no WhatsApp">
+     target="_blank" rel="noopener noreferrer" class="whatsapp-float" id="whatsapp-float" aria-label="Falar no WhatsApp">
     <svg viewBox="0 0 32 32" width="45" height="45" fill="currentColor" aria-hidden="true">
       <path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.34.652 4.527 1.785 6.393L4 29l7.828-1.749A11.94 11.94 0 0 0 16.001 27C22.63 27 28 21.627 28 15S22.63 3 16.001 3zm0 21.6a9.55 9.55 0 0 1-4.87-1.334l-.35-.207-4.64 1.037 1.06-4.522-.228-.365A9.56 9.56 0 1 1 25.56 15c0 5.294-4.266 9.6-9.559 9.6zm5.242-7.14c-.287-.144-1.698-.838-1.961-.934-.263-.096-.454-.144-.646.144-.191.287-.742.934-.91 1.126-.168.191-.335.215-.622.072-.287-.144-1.212-.447-2.309-1.427-.853-.762-1.43-1.703-1.598-1.99-.168-.287-.018-.442.126-.585.129-.129.287-.335.43-.502.144-.168.191-.287.287-.478.096-.191.048-.36-.024-.503-.072-.144-.646-1.559-.885-2.135-.233-.56-.47-.484-.646-.493l-.55-.01c-.191 0-.502.072-.766.36-.263.287-1.003.98-1.003 2.39s1.027 2.774 1.17 2.966c.144.191 2.02 3.084 4.892 4.325.684.295 1.217.471 1.633.603.686.218 1.31.187 1.804.113.55-.082 1.698-.694 1.938-1.365.24-.67.24-1.245.168-1.365-.072-.12-.263-.191-.55-.335z"/>
     </svg>
   </a>
 
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=4"></script>
 </body>
 </html>

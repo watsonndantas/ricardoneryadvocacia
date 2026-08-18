@@ -1,0 +1,17 @@
+# Segredos e ambiente local
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets/
+
+# Sistema / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Artefatos locais de preview (não publicar)
+.preview-shots/

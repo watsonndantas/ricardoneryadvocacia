@@ -98,15 +98,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const CLICK_ID_KEYS = ['gclid', 'gbraid', 'wbraid', 'fbclid'];
   const ATTR_KEYS = UTM_KEYS.concat(CLICK_ID_KEYS);
   const ATTR_STORAGE_KEY = 'rn_utm_params';
+  const MAX_ATTR_VALUE_LEN = 80;
+
+  // Limita tamanho e remove caracteres de controle — evita payload abusivo em
+  // sessionStorage / mensagem do WhatsApp / eventos de analytics.
+  const sanitizeAttrValue = (value) => {
+    if (value == null) return '';
+    const asString = String(value).replace(/[\u0000-\u001F\u007F]/g, '').trim();
+    if (!asString) return '';
+    return asString.length > MAX_ATTR_VALUE_LEN
+      ? asString.slice(0, MAX_ATTR_VALUE_LEN)
+      : asString;
+  };
+
+  const sanitizeAttrObject = (raw) => {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+    const clean = {};
+    ATTR_KEYS.forEach((key) => {
+      if (!Object.prototype.hasOwnProperty.call(raw, key)) return;
+      const value = sanitizeAttrValue(raw[key]);
+      if (value) clean[key] = value;
+    });
+    return clean;
+  };
 
   const readAttrFromUrl = () => {
     const params = new URLSearchParams(window.location.search);
     const attr = {};
     ATTR_KEYS.forEach((key) => {
-      const value = params.get(key);
+      const value = sanitizeAttrValue(params.get(key));
       if (value) attr[key] = value;
     });
     return attr;
+  };
+
+  const readAttrFromStorage = () => {
+    try {
+      const stored = sessionStorage.getItem(ATTR_STORAGE_KEY);
+      if (!stored) return {};
+      return sanitizeAttrObject(JSON.parse(stored));
+    } catch (e) {
+      return {};
+    }
   };
 
   let utmParams = {};
@@ -114,16 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const fromUrl = readAttrFromUrl();
     if (Object.keys(fromUrl).length) {
       // Mescla com o que já estava na sessão (ex.: UTM numa visita, gclid noutra)
-      let previous = {};
-      try {
-        const stored = sessionStorage.getItem(ATTR_STORAGE_KEY);
-        if (stored) previous = JSON.parse(stored) || {};
-      } catch (e) { /* ignore */ }
-      utmParams = Object.assign({}, previous, fromUrl);
+      utmParams = Object.assign({}, readAttrFromStorage(), fromUrl);
       sessionStorage.setItem(ATTR_STORAGE_KEY, JSON.stringify(utmParams));
     } else {
-      const stored = sessionStorage.getItem(ATTR_STORAGE_KEY);
-      if (stored) utmParams = JSON.parse(stored);
+      utmParams = readAttrFromStorage();
     }
   } catch (e) {
     // sessionStorage indisponível (ex.: navegação privada) — segue sem atribuição
@@ -136,8 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const utmMessageSuffix = () => {
     const parts = [];
-    if (utmParams.utm_source) parts.push(`origem: ${utmParams.utm_source}`);
-    if (utmParams.utm_campaign) parts.push(`campanha: ${utmParams.utm_campaign}`);
+    // UTMs e clids truncados na mensagem (evita vazar IDs longos / texto abusivo)
+    if (utmParams.utm_source) parts.push(`origem: ${shortId(utmParams.utm_source)}`);
+    if (utmParams.utm_campaign) parts.push(`campanha: ${shortId(utmParams.utm_campaign)}`);
     if (utmParams.gclid) parts.push(`gclid: ${shortId(utmParams.gclid)}`);
     if (utmParams.gbraid) parts.push(`gbraid: ${shortId(utmParams.gbraid)}`);
     if (utmParams.wbraid) parts.push(`wbraid: ${shortId(utmParams.wbraid)}`);
@@ -145,8 +173,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return parts.length ? `\n\n[${parts.join(' | ')}]` : '';
   };
 
-  // Params enviados aos eventos (sem truncar — analytics precisam do valor completo)
+  // Params enviados aos eventos (já sanitizados; analytics precisam do valor completo até o limite)
   const attributionForEvents = () => Object.assign({}, utmParams);
+
+  const isAllowedWhatsAppHost = (hostname) =>
+    hostname === 'wa.me' || hostname === 'api.whatsapp.com' || hostname === 'www.whatsapp.com';
 
   /* -----------------------------------------------------
      4.1) INSERÇÃO DINÂMICA DE PALAVRA-CHAVE (DKI) — Google Ads
@@ -171,12 +202,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const adKeyword = (() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('utm_term') || params.get('kw') || utmParams.utm_term || '';
+    return sanitizeAttrValue(
+      params.get('utm_term') || params.get('kw') || utmParams.utm_term || ''
+    );
   })();
 
   if (adKeyword) {
     const badgeEl = document.querySelector('#hero .badge');
     const matchedBadge = KEYWORD_BADGES.find((entry) => entry.match.test(adKeyword));
+    // Sempre textContent + rótulo fixo da lista — nunca injeta o termo cru da URL no DOM
     if (badgeEl && matchedBadge) {
       badgeEl.textContent = matchedBadge.label;
     }
@@ -222,24 +256,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.querySelectorAll('a[href*="wa.me"]').forEach((link) => {
+    // Guarda o href original para não acumular o sufixo a cada clique
+    if (!link.dataset.baseHref) {
+      link.dataset.baseHref = link.getAttribute('href') || '';
+    }
+
     link.addEventListener('click', () => {
-      const ctaLabel = link.id || link.textContent.trim();
+      const ctaLabel = link.id || 'whatsapp';
       const attr = attributionForEvents();
 
-      // Anexa origem da campanha + clids à mensagem do WhatsApp
+      // Anexa origem da campanha + clids à mensagem do WhatsApp (URL API = encoding seguro)
       const suffix = utmMessageSuffix();
       if (suffix) {
         try {
-          const url = new URL(link.href);
-          const currentText = url.searchParams.get('text') || '';
-          url.searchParams.set('text', currentText + suffix);
-          link.href = url.toString();
+          const url = new URL(link.dataset.baseHref, window.location.href);
+          if (url.protocol === 'https:' && isAllowedWhatsAppHost(url.hostname)) {
+            const currentText = url.searchParams.get('text') || '';
+            url.searchParams.set('text', currentText + suffix);
+            link.href = url.toString();
+          }
         } catch (e) {
           // href inválido — segue sem anexar atribuição
         }
       }
-
-      console.log('[Conversão] Clique em CTA do WhatsApp:', ctaLabel, attr);
 
       // Google Analytics 4 — clique + lead (importáveis no Google Ads)
       if (gaReady && typeof window.gtag === 'function') {
@@ -282,10 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
      ----------------------------------------------------- */
   document.querySelectorAll('a[href*="instagram.com"]').forEach((link) => {
     link.addEventListener('click', () => {
-      const ctaLabel = link.id || link.textContent.trim();
+      const ctaLabel = link.id || 'instagram';
       const attr = attributionForEvents();
-
-      console.log('[Engajamento] Clique no Instagram:', ctaLabel, attr);
 
       if (gaReady && typeof window.gtag === 'function') {
         window.gtag('event', 'click_instagram', {
